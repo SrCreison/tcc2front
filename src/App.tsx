@@ -1,86 +1,100 @@
 import { useState, useEffect } from 'react';
-import './App.css'; // Vamos criar esse arquivo abaixo
+import './App.css';
 
+// Mapeamento exato dos nomes que saem do seu backend (GameMath/Engine)
 const SYMBOLS: Record<string, string> = {
-  'pocao_azul': '🧪', 'pocao_verde': '🧪', 'pocao_roxa': '🧪',
-  'cristal': '💎', 'livro': '📖', 'scatter_grimorio': '📜', 'pedra_filosofal': '☄️'
+  'pocao_azul': '🧪',
+  'pocao_verde': '🧪',
+  'pocao_roxa': '🧪',
+  'cristal': '💎',
+  'livro': '📖',
+  'scatter_grimorio': '📜',
+  'pedra_filosofal': '☄️'
 };
 
 function App() {
+  // Inicializa o grid com 20 espaços vazios (5x4)
   const [grid, setGrid] = useState<any[]>(Array(20).fill(null));
-  const [status, setStatus] = useState('Aguardando aposta...');
+  const [status, setStatus] = useState('Pronto para a Alquimia?');
   const [loading, setLoading] = useState(false);
-  const [historico, setHistorico] = useState<any[]>([]);
+  const [resumo, setResumo] = useState<any>(null);
 
-  // Função para "Rodar" a animação de cascata
-  const playSequence = async (steps: any[]) => {
-    for (const step of steps) {
-      setGrid(step.grid); // Atualiza o grid visual
-      if (step.resultado.teveVitoria) {
-        setStatus(`Vitória na Cascata! +R$ ${step.resultado.premioCascata}`);
-        await new Promise(r => setTimeout(r, 800)); // Espera a "explosão"
+  // Função para processar a animação das cascatas
+  const animarCascatas = async (historico: any[]) => {
+    for (const etapa of historico) {
+      setGrid(etapa.grid); // Atualiza o visual com o grid daquela cascata
+      
+      if (etapa.resultado.teveVitoria) {
+        setStatus(`💥 Explosão! +R$ ${etapa.resultado.premioCascata.toFixed(2)}`);
+        await new Promise(r => setTimeout(r, 1000)); // Espera 1s para o jogador ver a vitória
       }
     }
   };
 
-  const girar = async (buyBonus = false) => {
+  const girar = async (comprarBonus = false) => {
     setLoading(true);
-    setStatus('Misturando poções...');
+    setResumo(null);
+    setStatus('Misturando ingredientes...');
     
     try {
-      const resp = await fetch(`https://api-play.abraaodaldon.com.br/api/play?buyBonus=${buyBonus}`);
+      const url = `https://api-play.abraaodaldon.com.br/api/play${comprarBonus ? '?buyBonus=true' : ''}`;
+      const resp = await fetch(url);
       const data = await resp.json();
-      
-      // Toca a animação baseada no histórico de cascatas que o backend mandou
-      await playSequence(data.jogo.historico);
-      
-      setStatus(`Fim da rodada. Prêmio: R$ ${data.jogo.premioRodada}`);
-      fetchHistory(); // Atualiza a lista lateral
+
+      if (data.id) {
+        // 1. Roda a animação das cascatas do Jogo Base
+        await animarCascatas(data.jogo.historico);
+        
+        // 2. Se teve bônus, avisa o jogador
+        if (data.jogo.scattersNaTela >= 4) {
+          setStatus('🔥 BÔNUS ATIVADO! Veja o console para detalhes por enquanto.');
+        } else {
+          setStatus('Rodada finalizada.');
+        }
+
+        setResumo(data.resumoFinanceiro);
+      }
     } catch (e) {
-      setStatus('Erro de conexão.');
+      console.error(e);
+      setStatus('Erro ao conectar com a torre do mago (API).');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchHistory = () => {
-    fetch('https://api-play.abraaodaldon.com.br/api/history')
-      .then(r => r.json()).then(setHistorico);
-  };
-
-  useEffect(() => { fetchHistory(); }, []);
-
   return (
     <div className="game-container">
-      <div className="sidebar">
-        <h3>📜 Histórico</h3>
-        {historico.map(h => (
-          <div key={h.id} className="history-item">
-            R$ {h.payout.toFixed(2)} {h.payout > 0 ? '✅' : '💀'}
+      <h1 className="title">🧪 Alquimia Slot</h1>
+      
+      <div className="grid-5x4">
+        {grid.map((simbolo, i) => (
+          <div key={i} className={`slot-cell ${simbolo?.venceu ? 'win-anim' : ''}`}>
+            {simbolo ? SYMBOLS[simbolo.name] || '❓' : ''}
           </div>
         ))}
       </div>
 
-      <main className="main-game">
-        <h1 className="title">ALQUIMIA SLOT</h1>
-        <div className="grid-5x4">
-          {grid.map((s, i) => (
-            <div key={i} className={`slot-cell ${s?.venceu ? 'win-anim' : ''}`}>
-              {s ? SYMBOLS[s.name] || '❓' : ''}
-            </div>
-          ))}
-        </div>
-
-        <div className="controls">
-          <p className="status-text">{status}</p>
-          <button onClick={() => girar(false)} disabled={loading} className="btn-play">
-            GIRAR (R$ 2.00)
+      <div className="ui-panel">
+        <p className="status-msg">{status}</p>
+        
+        <div className="buttons">
+          <button onClick={() => girar(false)} disabled={loading} className="btn normal">
+            {loading ? 'Girando...' : 'JOGAR (R$ 2.00)'}
           </button>
-          <button onClick={() => girar(true)} disabled={loading} className="btn-bonus">
+          <button onClick={() => girar(true)} disabled={loading} className="btn bonus">
             COMPRAR BÔNUS (R$ 200)
           </button>
         </div>
-      </main>
+
+        {resumo && (
+          <div className="resumo-box">
+            <p>💰 Ganho: R$ {resumo.premioTotalDaSessao.toFixed(2)}</p>
+            <p style={{ color: resumo.lucroSessao >= 0 ? '#4ade80' : '#f87171' }}>
+              {resumo.lucroSessao >= 0 ? 'LUCRO' : 'PREJUÍZO'}: R$ {resumo.lucroSessao.toFixed(2)}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
