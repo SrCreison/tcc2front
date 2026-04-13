@@ -1,71 +1,86 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import './App.css'; // Vamos criar esse arquivo abaixo
+
+const SYMBOLS: Record<string, string> = {
+  'pocao_azul': '🧪', 'pocao_verde': '🧪', 'pocao_roxa': '🧪',
+  'cristal': '💎', 'livro': '📖', 'scatter_grimorio': '📜', 'pedra_filosofal': '☄️'
+};
 
 function App() {
-  const [carregando, setCarregando] = useState(false);
-  const [resultado, setResultado] = useState<any>(null);
+  const [grid, setGrid] = useState<any[]>(Array(20).fill(null));
+  const [status, setStatus] = useState('Aguardando aposta...');
+  const [loading, setLoading] = useState(false);
+  const [historico, setHistorico] = useState<any[]>([]);
 
-  const girarRoleta = async (comprarBonus: boolean = false) => {
-    setCarregando(true);
-    setResultado(null);
-
-    try {
-      // USANDO A SUA URL DA CLOUDFLARE
-      const baseUrl = 'https://api-play.abraaodaldon.com.br/api/play';
-      // const baseUrl = window.location.protocol + '//api-play.abraaodaldon.com.br/api/play';
-      const aposta = Math.floor(Math.random() * 999999);
-      
-      // let urlFinal = `${baseUrl}?cSeed=FrontEnd_User&aposta=${aposta}`;
-      let urlFinal = `${baseUrl}?cSeed=FrontEnd_User&aposta=${aposta}`;
-      if (comprarBonus) urlFinal += '&buyBonus=true';
-
-      const resposta = await fetch(urlFinal);
-      const dadosJson = await resposta.json();
-
-      setResultado(dadosJson);
-    } catch (erro) {
-      console.error("Erro:", erro);
-      alert("Erro ao conectar na API. Verifique o console.");
-    } finally {
-      setCarregando(false);
+  // Função para "Rodar" a animação de cascata
+  const playSequence = async (steps: any[]) => {
+    for (const step of steps) {
+      setGrid(step.grid); // Atualiza o grid visual
+      if (step.resultado.teveVitoria) {
+        setStatus(`Vitória na Cascata! +R$ ${step.resultado.premioCascata}`);
+        await new Promise(r => setTimeout(r, 800)); // Espera a "explosão"
+      }
     }
   };
 
-  return (
-    <div style={{ padding: '40px', fontFamily: 'Arial, sans-serif', backgroundColor: '#1a1a1a', color: '#fff', minHeight: '100vh', textAlign: 'center' }}>
-      <h1 style={{ color: '#a855f7' }}>🧪 Alquimia Slot - TCC</h1>
+  const girar = async (buyBonus = false) => {
+    setLoading(true);
+    setStatus('Misturando poções...');
+    
+    try {
+      const resp = await fetch(`https://api-play.abraaodaldon.com.br/api/play?buyBonus=${buyBonus}`);
+      const data = await resp.json();
       
-      <div style={{ margin: '20px' }}>
-        <button 
-          onClick={() => girarRoleta(false)} 
-          disabled={carregando}
-          style={{ padding: '15px 25px', margin: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', borderRadius: '8px', border: 'none', backgroundColor: '#6366f1', color: 'white' }}
-        >
-          {carregando ? 'Processando...' : 'JOGADA NORMAL (R$ 2)'}
-        </button>
+      // Toca a animação baseada no histórico de cascatas que o backend mandou
+      await playSequence(data.jogo.historico);
+      
+      setStatus(`Fim da rodada. Prêmio: R$ ${data.jogo.premioRodada}`);
+      fetchHistory(); // Atualiza a lista lateral
+    } catch (e) {
+      setStatus('Erro de conexão.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        <button 
-          onClick={() => girarRoleta(true)} 
-          disabled={carregando}
-          style={{ padding: '15px 25px', margin: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', borderRadius: '8px', border: 'none', backgroundColor: '#f59e0b', color: 'white' }}
-        >
-          {carregando ? 'Processando...' : 'COMPRAR BÔNUS (R$ 200)'}
-        </button>
+  const fetchHistory = () => {
+    fetch('https://api-play.abraaodaldon.com.br/api/history')
+      .then(r => r.json()).then(setHistorico);
+  };
+
+  useEffect(() => { fetchHistory(); }, []);
+
+  return (
+    <div className="game-container">
+      <div className="sidebar">
+        <h3>📜 Histórico</h3>
+        {historico.map(h => (
+          <div key={h.id} className="history-item">
+            R$ {h.payout.toFixed(2)} {h.payout > 0 ? '✅' : '💀'}
+          </div>
+        ))}
       </div>
 
-      {resultado && (
-        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px', borderRadius: '12px', backgroundColor: '#2d2d2d', textAlign: 'left', border: '1px solid #444' }}>
-          <h2 style={{ color: resultado.roteiroDoJogo.jogoBase.ativouGirosGratis ? '#fbbf24' : '#10b981' }}>
-            {resultado.mensagem}
-          </h2>
-          <hr style={{ borderColor: '#444' }} />
-          <p>💰 <strong>Aposta:</strong> R$ {resultado.resumoFinanceiro.valorApostado.toFixed(2)}</p>
-          <p>🎁 <strong>Prêmio:</strong> R$ {resultado.resumoFinanceiro.premioTotalDaSessao.toFixed(2)}</p>
-          <p>📈 <strong>Resultado:</strong> {resultado.resumoFinanceiro.lucroSessao >= 0 ? '✅ LUCRO' : '❌ PREJUÍZO'}</p>
-          <p>📚 <strong>Scatters na tela:</strong> {resultado.roteiroDoJogo.jogoBase.scattersEncontrados}</p>
-          
-          <p style={{ fontSize: '12px', color: '#888' }}>*Abra o F12 {'>'} Console para ver os hashes e o grid.</p>
+      <main className="main-game">
+        <h1 className="title">ALQUIMIA SLOT</h1>
+        <div className="grid-5x4">
+          {grid.map((s, i) => (
+            <div key={i} className={`slot-cell ${s?.venceu ? 'win-anim' : ''}`}>
+              {s ? SYMBOLS[s.name] || '❓' : ''}
+            </div>
+          ))}
         </div>
-      )}
+
+        <div className="controls">
+          <p className="status-text">{status}</p>
+          <button onClick={() => girar(false)} disabled={loading} className="btn-play">
+            GIRAR (R$ 2.00)
+          </button>
+          <button onClick={() => girar(true)} disabled={loading} className="btn-bonus">
+            COMPRAR BÔNUS (R$ 200)
+          </button>
+        </div>
+      </main>
     </div>
   );
 }
