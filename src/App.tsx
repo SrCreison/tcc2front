@@ -10,7 +10,7 @@ function App() {
 
     try {
       // USANDO A SUA URL DA CLOUDFLARE
-      const baseUrl = 'http://api-play.abraaodaldon.com.br/api/play';
+      const baseUrl = 'https://api-play.abraaodaldon.com.br/api/play';
       // const baseUrl = window.location.protocol + '//api-play.abraaodaldon.com.br/api/play';
       const aposta = Math.floor(Math.random() * 999999);
       
