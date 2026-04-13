@@ -21,34 +21,28 @@ function App() {
   const [grid, setGrid] = useState<any[]>(Array(30).fill(null)); 
   const [info, setInfo] = useState<any>(null);
   const [status, setStatus] = useState('Aguardando Jogada...');
-  
-  // ESTADO PARA O HISTÓRICO DE VITÓRIAS DO TUMBLE
   const [tumbleWins, setTumbleWins] = useState<any[]>([]);
 
   const animarCascatas = async (historico: any[]) => {
     if (!historico) return;
-    
     let vitoriasAcumuladas: any[] = [];
 
     for (const etapa of historico) {
       setGrid(etapa.grid);
 
       if (etapa.resultado.teveVitoria) {
-        // Captura os símbolos que pagaram nesta etapa
         const novasVitorias = etapa.resultado.combinacoesVencedoras.map((v: any) => ({
           name: v.simbolo,
           emoji: SYMBOLS[v.simbolo] || '❓',
           quantidade: v.quantidade,
-          valor: v.valor
+          // AJUSTE AQUI: Se o seu back manda 'premio', usamos 'premio'
+          valor: v.premio || v.valor || 0 
         }));
 
-        // Adiciona ao topo da lista de histórico lateral
         vitoriasAcumuladas = [...novasVitorias, ...vitoriasAcumuladas];
         setTumbleWins(vitoriasAcumuladas);
 
-        setStatus(`💥 VITÓRIA! +R$ ${etapa.resultado.premioCascata.toFixed(2)}`);
-        
-        // Pausa para o jogador ver o highlight dos símbolos vencedores
+        setStatus(`💥 VITÓRIA! +R$ ${(etapa.resultado.premioCascata || 0).toFixed(2)}`);
         await new Promise(r => setTimeout(r, 1000)); 
       } else {
         await new Promise(r => setTimeout(r, 500));
@@ -63,7 +57,7 @@ function App() {
 
     for (const giro of dadosBonus.giros) {
       setGrid(giro.grid);
-      setStatus(`🎁 BÔNUS: Giro ${giro.giro}/10 | Ganho: R$ ${giro.premio.toFixed(2)}`);
+      setStatus(`🎁 BÔNUS: Giro ${giro.giro}/10 | Ganho: R$ ${(giro.premio || 0).toFixed(2)}`);
       await new Promise(r => setTimeout(r, 1200)); 
     }
   };
@@ -72,7 +66,7 @@ function App() {
     if (loading) return;
     setLoading(true);
     setInfo(null);
-    setTumbleWins([]); // Limpa o histórico de vitórias da rodada anterior
+    setTumbleWins([]);
     setStatus('Misturando poções...');
 
     try {
@@ -94,6 +88,7 @@ function App() {
       setInfo(dados);
       setStatus(dados.mensagem);
     } catch (erro) {
+      console.error("Erro no front:", erro);
       setStatus('Erro na API.');
     } finally {
       setLoading(false);
@@ -107,24 +102,24 @@ function App() {
 
       <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
         
-        {/* PAINEL LATERAL: HISTÓRICO DE VITÓRIAS DO TUMBLE */}
+        {/* HISTÓRICO LATERAL */}
         <div style={{ width: '180px', backgroundColor: '#1e293b', padding: '15px', borderRadius: '12px', border: '2px solid #334155', minHeight: '415px' }}>
           <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#94a3b8', textAlign: 'center' }}>PAGAMENTOS</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {tumbleWins.length === 0 && <p style={{ fontSize: '0.8rem', color: '#475569', textAlign: 'center' }}>Nenhuma vitória ainda...</p>}
+            {tumbleWins.length === 0 && <p style={{ fontSize: '0.8rem', color: '#475569', textAlign: 'center' }}>Aguardando...</p>}
             {tumbleWins.map((win, idx) => (
-              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#0f172a', padding: '5px', borderRadius: '6px', borderLeft: '3px solid #4ade80', animation: 'slideIn 0.3s ease' }}>
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#0f172a', padding: '5px', borderRadius: '6px', borderLeft: '3px solid #4ade80' }}>
                 <span style={{ fontSize: '1.2rem' }}>{win.emoji}</span>
                 <div style={{ fontSize: '0.7rem' }}>
                   <div style={{ fontWeight: 'bold' }}>{win.quantidade}x</div>
-                  <div style={{ color: '#4ade80' }}>R$ {win.valor.toFixed(2)}</div>
+                  <div style={{ color: '#4ade80' }}>R$ {(win.valor || 0).toFixed(2)}</div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* O GRID (CENTRO) */}
+        {/* GRID COM BORDAS AJUSTADAS */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(6, 75px)', 
@@ -133,25 +128,24 @@ function App() {
           backgroundColor: '#1e293b',
           padding: '20px',
           borderRadius: '16px',
-          border: '5px solid #4c1d95',
+          border: '4px solid #4c1d95',
           boxShadow: '0 0 40px rgba(0,0,0,0.6)',
         }}>
           {grid.map((simbolo, i) => (
             <div key={i} style={{
               width: '75px',
               height: '75px',
-              backgroundColor: simbolo?.venceu ? '#4c1d95' : '#0f172a',
-              // HIGHLIGHT FORÇADO: Borda branca brilhante se venceu
-              border: simbolo?.venceu ? '3px solid #fff' : '1px solid #334155',
+              backgroundColor: simbolo?.venceu ? '#312e81' : '#0f172a',
+              // BORDA MAIS FINA E ELEGANTE
+              border: simbolo?.venceu ? '2px solid #fff' : '1px solid #334155',
               borderRadius: '10px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '2.5rem',
               transition: 'all 0.3s ease-in-out',
-              // ANIMAÇÃO DE HIGHLIGHT
-              transform: simbolo?.venceu ? 'scale(1.15)' : 'scale(1)',
-              boxShadow: simbolo?.venceu ? '0 0 20px #a855f7, inset 0 0 10px #fff' : 'none',
+              transform: simbolo?.venceu ? 'scale(1.1)' : 'scale(1)',
+              boxShadow: simbolo?.venceu ? '0 0 15px rgba(255,255,255,0.4)' : 'none',
               zIndex: simbolo?.venceu ? 10 : 1
             }}>
               {simbolo ? (SYMBOLS[simbolo.name] || '❓') : ''}
@@ -174,21 +168,13 @@ function App() {
       </div>
 
       {info && (
-        <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#1e293b', borderRadius: '12px', borderLeft: '6px solid #a855f7', minWidth: '350px' }}>
-          <p>💰 Ganho Total: R$ {info.resumoFinanceiro.premioTotalDaSessao.toFixed(2)}</p>
+        <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#1e293b', borderRadius: '12px', borderLeft: '6px solid #a855f7' }}>
+          <p>💰 Ganho Total: R$ {(info.resumoFinanceiro.premioTotalDaSessao || 0).toFixed(2)}</p>
           <p style={{ color: info.resumoFinanceiro.lucroSessao >= 0 ? '#4ade80' : '#f87171', fontWeight: 'bold' }}>
-            {info.resumoFinanceiro.lucroSessao >= 0 ? '✅ LUCRO' : '❌ PREJUÍZO'}: R$ {info.resumoFinanceiro.lucroSessao.toFixed(2)}
+            {info.resumoFinanceiro.lucroSessao >= 0 ? '✅ LUCRO' : '❌ PREJUÍZO'}: R$ {(info.resumoFinanceiro.lucroSessao || 0).toFixed(2)}
           </p>
         </div>
       )}
-
-      {/* CSS PARA A ANIMAÇÃO DE ENTRADA DO HISTÓRICO */}
-      <style>{`
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateX(-10px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
     </div>
   );
 }
