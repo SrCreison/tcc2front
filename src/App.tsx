@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 
-// Mapeamento dos símbolos
 const SYMBOLS: Record<string, string> = {
   'pocao_azul': '🧪',
   'pocao_verde': '🟢',
@@ -13,13 +12,10 @@ const SYMBOLS: Record<string, string> = {
 
 function App() {
   const [loading, setLoading] = useState(false);
-  const [grid, setGrid] = useState<any[]>(Array(20).fill(null)); 
+  // AGORA COM 30 ESPAÇOS (6x5)
+  const [grid, setGrid] = useState<any[]>(Array(30).fill(null)); 
   const [info, setInfo] = useState<any>(null);
-  const [status, setStatus] = useState('Aguardando Jogada...');
-
-  useEffect(() => {
-    console.log("LOG: App carregado com sucesso.");
-  }, []);
+  const [status, setStatus] = useState('Pronto para o caos?');
 
   const animarJogo = async (historico: any[]) => {
     if (!historico) return;
@@ -36,7 +32,6 @@ function App() {
     setLoading(true);
     setInfo(null);
     setStatus('Misturando poções...');
-
     try {
       const aposta = Math.floor(Math.random() * 999999);
       let url = `https://api-play.abraaodaldon.com.br/api/play?cSeed=User&aposta=${aposta}`;
@@ -51,67 +46,60 @@ function App() {
         setStatus(dados.mensagem);
       }
     } catch (erro) {
-      setStatus('Erro de conexão com a API.');
+      setStatus('Erro na API.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ backgroundColor: '#020617', color: 'white', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px', fontFamily: 'sans-serif' }}>
+    <div style={{ backgroundColor: '#020617', color: 'white', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
       
-      <div style={{ background: '#7c3aed', color: 'white', padding: '8px 20px', fontWeight: 'bold', marginBottom: '20px', borderRadius: '20px', fontSize: '14px' }}>
-        ALQUIMIA SLOT V2.0 - ATIVA
-      </div>
+      <h1 style={{ color: '#a855f7', textShadow: '0 0 15px rgba(168,85,247,0.5)' }}>🧪 Alquimia Slot</h1>
 
-      <h1 style={{ color: '#a855f7', textShadow: '0 0 15px rgba(168,85,247,0.5)', margin: '0 0 20px 0' }}>🧪 Alquimia Slot</h1>
-
-      {/* GRID */}
+      {/* GRID CORRIGIDO PARA 6 COLUNAS E 5 LINHAS */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(5, 85px)',
-        gridTemplateRows: 'repeat(4, 85px)',
-        gap: '12px',
+        gridTemplateColumns: 'repeat(6, 70px)', // 6 colunas
+        gridTemplateRows: 'repeat(5, 70px)',    // 5 linhas
+        gap: '8px',
         backgroundColor: '#1e293b',
-        padding: '20px',
+        padding: '15px',
         borderRadius: '16px',
         border: '5px solid #4c1d95',
         boxShadow: '0 0 40px rgba(0,0,0,0.6)',
-        marginBottom: '30px'
+        marginBottom: '20px'
       }}>
         {grid.map((simbolo, i) => (
           <div key={i} style={{
-            width: '85px',
-            height: '85px',
+            width: '70px',
+            height: '70px',
             backgroundColor: simbolo?.venceu ? '#5b21b6' : '#0f172a',
-            border: simbolo?.venceu ? '2px solid #ddd' : '1px solid #334155',
-            borderRadius: '10px',
+            border: simbolo?.venceu ? '2px solid #fff' : '1px solid #334155',
+            borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '2.5rem',
+            fontSize: '2rem',
             transition: 'all 0.2s'
           }}>
-            {simbolo ? (SYMBOLS[simbolo.name] || '❓') : ''}
+            {simbolo ? (SYMBOLS[simbolo.name] || <span style={{fontSize: '10px'}}>{simbolo.name}</span>) : ''}
           </div>
         ))}
       </div>
 
       <div style={{ textAlign: 'center' }}>
-        <p style={{ fontWeight: 'bold', marginBottom: '15px', fontSize: '1.2rem' }}>{status}</p>
-        <button onClick={() => girarRoleta(false)} disabled={loading} style={{ padding: '15px 30px', margin: '5px', cursor: 'pointer', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 'bold', fontSize: '16px' }}>
+        <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>{status}</p>
+        <button onClick={() => girarRoleta(false)} disabled={loading} style={{ padding: '12px 25px', cursor: 'pointer', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold' }}>
           {loading ? '...' : 'JOGAR R$ 2'}
-        </button>
-        <button onClick={() => girarRoleta(true)} disabled={loading} style={{ padding: '15px 30px', margin: '5px', cursor: 'pointer', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 'bold', fontSize: '16px' }}>
-          BÔNUS R$ 200
         </button>
       </div>
 
       {info && (
-        <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#1e293b', borderRadius: '12px', borderLeft: '6px solid #a855f7' }}>
+        <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#1e293b', borderRadius: '10px', borderLeft: '5px solid #a855f7' }}>
           <p>💰 Ganho: R$ {info.resumoFinanceiro.premioTotalDaSessao.toFixed(2)}</p>
           <p style={{ color: info.resumoFinanceiro.lucroSessao >= 0 ? '#4ade80' : '#f87171', fontWeight: 'bold' }}>
-            {info.resumoFinanceiro.lucroSessao >= 0 ? '✅ LUCRO' : '❌ PREJUÍZO'}: R$ {info.resumoFinanceiro.lucroSessao.toFixed(2)}
+            {info.resumoFinanceiro.lucroSessao >= 0 ? 'LUCRO' : 'PREJUÍZO'}
           </p>
         </div>
       )}
