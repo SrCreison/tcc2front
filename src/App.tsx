@@ -13,7 +13,7 @@ const SYMBOLS: Record<string, string> = {
   'cristal_amarelo': '💛',
   'livro': '📖',
   'scatter_grimorio': '📜',
-  'pedra_filosofal': '☄️'
+  'pedra_filosofal': '☄️',
   'pocao_dourada': '🍾'
 };
 
