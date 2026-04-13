@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './App.css';
 
-// Mapeamento exato dos nomes que saem do seu backend (GameMath/Engine)
+// Mapeamento dos símbolos para emojis (ou imagens)
 const SYMBOLS: Record<string, string> = {
   'pocao_azul': '🧪',
   'pocao_verde': '🧪',
@@ -13,50 +13,43 @@ const SYMBOLS: Record<string, string> = {
 };
 
 function App() {
-  // Inicializa o grid com 20 espaços vazios (5x4)
-  const [grid, setGrid] = useState<any[]>(Array(20).fill(null));
-  const [status, setStatus] = useState('Pronto para a Alquimia?');
   const [loading, setLoading] = useState(false);
-  const [resumo, setResumo] = useState<any>(null);
+  const [grid, setGrid] = useState<any[]>(Array(20).fill(null)); // Começa vazio
+  const [info, setInfo] = useState<any>(null);
+  const [status, setStatus] = useState('Pronto para começar?');
 
-  // Função para processar a animação das cascatas
-  const animarCascatas = async (historico: any[]) => {
+  // Função para rodar a animação de cascata
+  const animarJogo = async (historico: any[]) => {
     for (const etapa of historico) {
-      setGrid(etapa.grid); // Atualiza o visual com o grid daquela cascata
-      
+      setGrid(etapa.grid); // Atualiza o grid na tela
       if (etapa.resultado.teveVitoria) {
-        setStatus(`💥 Explosão! +R$ ${etapa.resultado.premioCascata.toFixed(2)}`);
-        await new Promise(r => setTimeout(r, 1000)); // Espera 1s para o jogador ver a vitória
+        setStatus(`💥 VITÓRIA! +R$ ${etapa.resultado.premioCascata.toFixed(2)}`);
+        await new Promise(r => setTimeout(r, 800)); // Espera a explosão
       }
     }
   };
 
-  const girar = async (comprarBonus = false) => {
+  const girarRoleta = async (comprarBonus: boolean = false) => {
     setLoading(true);
-    setResumo(null);
-    setStatus('Misturando ingredientes...');
-    
+    setInfo(null);
+    setStatus('Girando...');
+
     try {
-      const url = `https://api-play.abraaodaldon.com.br/api/play${comprarBonus ? '?buyBonus=true' : ''}`;
-      const resp = await fetch(url);
-      const data = await resp.json();
+      const aposta = Math.floor(Math.random() * 999999);
+      let url = `https://api-play.abraaodaldon.com.br/api/play?cSeed=User&aposta=${aposta}`;
+      if (comprarBonus) url += '&buyBonus=true';
 
-      if (data.id) {
-        // 1. Roda a animação das cascatas do Jogo Base
-        await animarCascatas(data.jogo.historico);
-        
-        // 2. Se teve bônus, avisa o jogador
-        if (data.jogo.scattersNaTela >= 4) {
-          setStatus('🔥 BÔNUS ATIVADO! Veja o console para detalhes por enquanto.');
-        } else {
-          setStatus('Rodada finalizada.');
-        }
+      const resposta = await fetch(url);
+      const dados = await resposta.json();
 
-        setResumo(data.resumoFinanceiro);
-      }
-    } catch (e) {
-      console.error(e);
-      setStatus('Erro ao conectar com a torre do mago (API).');
+      // Aqui a mágica acontece: anima as cascatas que vieram do back
+      await animarJogo(dados.roteiroDoJogo.jogoBase.historicoRodada);
+      
+      setInfo(dados);
+      setStatus(dados.mensagem);
+    } catch (erro) {
+      console.error(erro);
+      setStatus('Erro ao conectar na API.');
     } finally {
       setLoading(false);
     }
@@ -65,36 +58,35 @@ function App() {
   return (
     <div className="game-container">
       <h1 className="title">🧪 Alquimia Slot</h1>
-      
-      <div className="grid-5x4">
-        {grid.map((simbolo, i) => (
-          <div key={i} className={`slot-cell ${simbolo?.venceu ? 'win-anim' : ''}`}>
-            {simbolo ? SYMBOLS[simbolo.name] || '❓' : ''}
-          </div>
-        ))}
-      </div>
 
-      <div className="ui-panel">
-        <p className="status-msg">{status}</p>
-        
-        <div className="buttons">
-          <button onClick={() => girar(false)} disabled={loading} className="btn normal">
-            {loading ? 'Girando...' : 'JOGAR (R$ 2.00)'}
-          </button>
-          <button onClick={() => girar(true)} disabled={loading} className="btn bonus">
-            COMPRAR BÔNUS (R$ 200)
-          </button>
+      {/* O GRID (Essa parte faltava no seu código!) */}
+      <div className="slot-machine">
+        <div className="grid-5x4">
+          {grid.map((simbolo, i) => (
+            <div key={i} className={`slot-cell ${simbolo?.venceu ? 'win-anim' : ''}`}>
+              {simbolo ? SYMBOLS[simbolo.name] || '❓' : ''}
+            </div>
+          ))}
         </div>
-
-        {resumo && (
-          <div className="resumo-box">
-            <p>💰 Ganho: R$ {resumo.premioTotalDaSessao.toFixed(2)}</p>
-            <p style={{ color: resumo.lucroSessao >= 0 ? '#4ade80' : '#f87171' }}>
-              {resumo.lucroSessao >= 0 ? 'LUCRO' : 'PREJUÍZO'}: R$ {resumo.lucroSessao.toFixed(2)}
-            </p>
-          </div>
-        )}
       </div>
+
+      <div className="controls">
+        <p className="status-label">{status}</p>
+        <button onClick={() => girarRoleta(false)} disabled={loading} className="btn-play">
+          {loading ? 'Processando...' : 'JOGADA NORMAL (R$ 2)'}
+        </button>
+        <button onClick={() => girarRoleta(true)} disabled={loading} className="btn-bonus">
+          COMPRAR BÔNUS (R$ 200)
+        </button>
+      </div>
+
+      {info && (
+        <div className="resumo-painel">
+          <p>💰 Aposta: R$ {info.resumoFinanceiro.valorApostado.toFixed(2)}</p>
+          <p>🎁 Prêmio: R$ {info.resumoFinanceiro.premioTotalDaSessao.toFixed(2)}</p>
+          <p>📈 Resultado: {info.resumoFinanceiro.lucroSessao >= 0 ? '✅ LUCRO' : '❌ PREJUÍZO'}</p>
+        </div>
+      )}
     </div>
   );
 }
