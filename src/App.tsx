@@ -10,8 +10,8 @@ function App() {
 
     try {
       // USANDO A SUA URL DA CLOUDFLARE
-      // const baseUrl = 'https://api-play.abraaodaldon.com.br/api/play';
-      const baseUrl = window.location.protocol + '//api-play.abraaodaldon.com.br/api/play';
+      const baseUrl = 'http://api-play.abraaodaldon.com.br/api/play';
+      // const baseUrl = window.location.protocol + '//api-play.abraaodaldon.com.br/api/play';
       const aposta = Math.floor(Math.random() * 999999);
       
       // let urlFinal = `${baseUrl}?cSeed=FrontEnd_User&aposta=${aposta}`;
