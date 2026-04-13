@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 
 // MAPEAMENTO COMPLETO BASEADO NO SEU PRINT
 const SYMBOLS: Record<string, string> = {
-  'pocao_azul': '🧪',
+  'pocao_azul': '🔵',
   'pocao_verde': '🧪',
-  'pocao_roxa': '🧪',
-  'pocao_vermelha': '🧪',
+  'pocao_roxa': '🟣',
+  'pocao_vermelha': '🔴',
   'cristal_verde': '💚',
   'cristal_azul': '💙',
   'cristal_rosa': '💗',
@@ -14,6 +14,7 @@ const SYMBOLS: Record<string, string> = {
   'livro': '📖',
   'scatter_grimorio': '📜',
   'pedra_filosofal': '☄️'
+  'pocao_dourada': '🍾'
 };
 
 function App() {
