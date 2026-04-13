@@ -1,69 +1,79 @@
 .game-container {
   display: flex;
-  background: #121212;
-  color: white;
-  min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.sidebar {
-  width: 200px;
-  background: #1a1a1a;
-  padding: 20px;
-  border-right: 2px solid #a855f7;
-}
-
-.main-game {
-  flex: 1;
-  display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #0f172a;
+  color: white;
+  font-family: sans-serif;
+}
+
+.title {
+  color: #a855f7;
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+  margin-bottom: 20px;
 }
 
 .grid-5x4 {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, 100px); /* 5 colunas de 100px */
+  grid-template-rows: repeat(4, 100px);    /* 4 linhas de 100px */
   gap: 10px;
-  background: #2d2d2d;
+  background: #1e293b;
   padding: 15px;
-  border-radius: 15px;
-  border: 4px solid #a855f7;
-  box-shadow: 0 0 30px rgba(168, 85, 247, 0.3);
+  border-radius: 12px;
+  border: 4px solid #334155;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
 }
 
 .slot-cell {
-  width: 80px;
-  height: 80px;
-  background: #1a1a1a;
+  background: #0f172a;
+  border: 2px solid #334155;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
-  border-radius: 10px;
-  border: 1px solid #444;
+  font-size: 3rem;
+  transition: all 0.2s;
 }
 
 .win-anim {
-  animation: explode 0.5s ease-in-out infinite alternate;
   background: #4c1d95;
+  border-color: #a855f7;
+  transform: scale(1.05);
+  animation: pulse 0.5s infinite alternate;
 }
 
-@keyframes explode {
-  from { transform: scale(1); box-shadow: 0 0 0px #fff; }
-  to { transform: scale(1.1); box-shadow: 0 0 15px #a855f7; }
+@keyframes pulse {
+  from { box-shadow: 0 0 5px #a855f7; }
+  to { box-shadow: 0 0 20px #d8b4fe; }
 }
 
-.btn-play, .btn-bonus {
+.ui-panel {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.btn {
   padding: 15px 30px;
+  font-size: 1.1rem;
   font-weight: bold;
-  border-radius: 10px;
-  cursor: pointer;
   border: none;
+  border-radius: 8px;
+  cursor: pointer;
   margin: 10px;
   transition: 0.2s;
 }
 
-.btn-play { background: #6366f1; color: white; }
-.btn-bonus { background: #f59e0b; color: white; }
-.btn-play:hover { background: #4f46e5; }
+.btn.normal { background: #6366f1; color: white; }
+.btn.bonus { background: #f59e0b; color: white; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.resumo-box {
+  margin-top: 20px;
+  padding: 15px;
+  background: #1e293b;
+  border-radius: 8px;
+  border-left: 5px solid #a855f7;
+}
