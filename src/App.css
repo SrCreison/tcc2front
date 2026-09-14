@@ -1,79 +1,256 @@
+:root {
+    --bg-deep: #020617;
+    --bg-panel: #1e293b;
+    --bg-cell: #0f172a;
+    --border-muted: #334155;
+    --accent-purple: #a855f7;
+    --accent-purple-deep: #4c1d95;
+    --accent-indigo: #6366f1;
+    --accent-amber: #f59e0b;
+    --success: #4ade80;
+    --danger: #f87171;
+    --text-muted: #94a3b8;
+    --text-faint: #475569;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 .game-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background-color: #0f172a;
-  color: white;
-  font-family: sans-serif;
+    background-color: var(--bg-deep);
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 .title {
-  color: #a855f7;
-  text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
-  margin-bottom: 20px;
+    color: var(--accent-purple);
+    text-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+    margin: 0 0 20px;
 }
 
-.grid-5x4 {
-  display: grid;
-  grid-template-columns: repeat(5, 100px); /* 5 colunas de 100px */
-  grid-template-rows: repeat(4, 100px);    /* 4 linhas de 100px */
-  gap: 10px;
-  background: #1e293b;
-  padding: 15px;
-  border-radius: 12px;
-  border: 4px solid #334155;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+.game-board {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* --- Painel lateral de pagamentos --- */
+
+.side-panel {
+    width: 180px;
+    background-color: var(--bg-panel);
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px solid var(--border-muted);
+    min-height: 415px;
+}
+
+.side-panel__title {
+    margin: 0 0 10px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.side-panel__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.side-panel__empty {
+    font-size: 0.8rem;
+    color: var(--text-faint);
+    text-align: center;
+}
+
+.win-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--bg-cell);
+    padding: 5px;
+    border-radius: 6px;
+    border-left: 3px solid var(--success);
+    animation: slide-in 0.25s ease-out;
+}
+
+.win-row__emoji {
+    font-size: 1.2rem;
+}
+
+.win-row__details {
+    font-size: 0.7rem;
+}
+
+.win-row__count {
+    font-weight: bold;
+}
+
+.win-row__value {
+    color: var(--success);
+}
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* --- Grid do slot --- */
+
+.slot-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 75px);
+    grid-template-rows: repeat(5, 75px);
+    gap: 10px;
+    background-color: var(--bg-panel);
+    padding: 20px;
+    border-radius: 16px;
+    border: 4px solid var(--accent-purple-deep);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
 }
 
 .slot-cell {
-  background: #0f172a;
-  border: 2px solid #334155;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  transition: all 0.2s;
+    width: 75px;
+    height: 75px;
+    background-color: var(--bg-cell);
+    border: 1px solid var(--border-muted);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background-color 0.3s ease-in-out;
 }
 
-.win-anim {
-  background: #4c1d95;
-  border-color: #a855f7;
-  transform: scale(1.05);
-  animation: pulse 0.5s infinite alternate;
+/* Destaque de combinação vencedora — motion que responde diretamente à
+   jogada do usuário (o giro), não uma animação decorativa contínua. */
+.slot-cell--win {
+    background-color: var(--accent-purple-deep);
+    border: 2px solid #fff;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+    z-index: 10;
+    animation: win-pulse 0.6s ease-in-out infinite alternate;
 }
 
-@keyframes pulse {
-  from { box-shadow: 0 0 5px #a855f7; }
-  to { box-shadow: 0 0 20px #d8b4fe; }
+@keyframes win-pulse {
+    from {
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+    }
+    to {
+        box-shadow: 0 0 22px rgba(216, 180, 254, 0.85);
+    }
 }
+
+/* --- Controles --- */
 
 .ui-panel {
-  margin-top: 30px;
-  text-align: center;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.status-line {
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    min-height: 1.5em;
+}
+
+.button-row {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
 }
 
 .btn {
-  padding: 15px 30px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin: 10px;
-  transition: 0.2s;
+    padding: 15px 30px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: filter 0.15s ease-in-out;
 }
 
-.btn.normal { background: #6366f1; color: white; }
-.btn.bonus { background: #f59e0b; color: white; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
 
-.resumo-box {
-  margin-top: 20px;
-  padding: 15px;
-  background: #1e293b;
-  border-radius: 8px;
-  border-left: 5px solid #a855f7;
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn--normal {
+    background-color: var(--accent-indigo);
+}
+
+.btn--bonus {
+    background-color: var(--accent-amber);
+}
+
+/* --- Resumo financeiro --- */
+
+.result-summary {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: var(--bg-panel);
+    border-radius: 12px;
+    border-left: 6px solid var(--accent-purple);
+}
+
+.result-summary__profit {
+    color: var(--success);
+    font-weight: bold;
+}
+
+.result-summary__loss {
+    color: var(--danger);
+    font-weight: bold;
+}
+
+/* --- Responsividade --- */
+
+@media (max-width: 520px) {
+    .slot-grid {
+        grid-template-columns: repeat(6, 48px);
+        grid-template-rows: repeat(5, 48px);
+        gap: 6px;
+        padding: 12px;
+    }
+
+    .slot-cell {
+        width: 48px;
+        height: 48px;
+        font-size: 1.6rem;
+    }
+
+    .side-panel {
+        width: 140px;
+        min-height: unset;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .slot-cell,
+    .win-row {
+        animation: none !important;
+        transition: none !important;
+    }
 }
