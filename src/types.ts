@@ -9,6 +9,8 @@
  * tipo de ambiguidade fica visível em tempo de compilação, não em produção.
  */
 
+export type GameProfile = 'normal' | 'demonstracao';
+
 export interface GridSymbol {
     id: number;
     name: string;
@@ -47,7 +49,8 @@ export interface BonusSpin {
     scattersNaTela: number;
     multiplicadorFinal: number;
     premio: number;
-    grid: Grid;
+    /** Histórico completo das cascatas deste giro do bônus (permite animar vitórias, igual à rodada base). */
+    historico: CascadeStep[];
 }
 
 export interface BonusRound {
@@ -59,10 +62,14 @@ export interface BonusRound {
 export interface SpinResponse {
     id: string;
     mensagem: string;
+    perfilUtilizado: GameProfile;
     auditoria: {
         serverSeed: string;
         clientSeed: string;
         nonceInicial: number;
+        valorAposta: number;
+        perfil: GameProfile;
+        isBonusBuy: boolean;
     };
     resumoFinanceiro: {
         valorApostado: number;
@@ -78,6 +85,49 @@ export interface SpinResponse {
         };
         jogoBonus: BonusRound | null;
     };
+}
+
+export interface VerifyResponse {
+    verificado: boolean;
+    perfilUtilizado: GameProfile;
+    valorApostaUtilizado: number;
+    jogoBase: {
+        historico: CascadeStep[];
+        premioRodada: number;
+        multiplicadorAplicado: number;
+        scattersNaTela: number;
+        hashesGerados: number;
+    };
+}
+
+export interface ProfileWeightsSnapshot {
+    common: Array<{ id: number; name: string; weight: number; pays?: Record<string, number> }>;
+    scatterBase: number;
+    scatterBonus: number;
+    multiplier: number;
+}
+
+export interface ProfileReferenceStats {
+    rtpPercent: number;
+    hitRatePercent: number;
+    bonusFrequency: string;
+    amostraGiros: number;
+}
+
+export interface ConfigResponse {
+    grid: { colunas: number; linhas: number; totalCasas: number };
+    regras: {
+        minimoParaPagar: number;
+        scattersParaBonus: number;
+        girosGratisNoBonus: number;
+        multiplicadorCompraDeBonus: number;
+    };
+    aposta: { minima: number; maxima: number; padrao: number };
+    perfis: Array<{
+        id: GameProfile;
+        pesos: ProfileWeightsSnapshot;
+        estatisticasDeReferencia: ProfileReferenceStats;
+    }>;
 }
 
 export interface ApiErrorResponse {

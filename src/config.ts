@@ -8,7 +8,21 @@
 export const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'https://api-play.abraaodaldon.com.br';
 
 export const BET_AMOUNT = 2.0;
+export const MIN_BET_AMOUNT = 0.5;
+export const MAX_BET_AMOUNT = 50;
 export const BONUS_BUY_COST_MULTIPLIER = 100;
+
+export const GAME_PROFILE_LABELS: Record<string, string> = {
+    normal: 'Normal (realista)',
+    demonstracao: 'Demonstração (didático)',
+};
+
+export const GAME_PROFILE_DESCRIPTIONS: Record<string, string> = {
+    normal:
+        'Pesos calibrados para se aproximar de uma slot real: vitórias e o bônus são propositalmente raros, e o valor esperado por giro é negativo para o jogador — o CSPRNG garante que o sorteio é verificável, não que as chances sejam boas.',
+    demonstracao:
+        'Pesos bem mais generosos, só para fins didáticos: mostra cascatas, multiplicadores e a rodada bônus em poucos giros. Não representa a economia de um jogo real.',
+};
 
 export const GRID_COLUMNS = 6;
 export const GRID_ROWS = 5;
@@ -45,4 +59,25 @@ export function getSymbolEmoji(name: string | undefined): string {
 export const CASCADE_WIN_PAUSE_MS = 900;
 export const CASCADE_NEUTRAL_PAUSE_MS = 450;
 export const BONUS_INTRO_PAUSE_MS = 1500;
-export const BONUS_SPIN_PAUSE_MS = 1200;
+
+/**
+ * Duração mínima do "giro" visual (puramente cosmético) antes de revelar
+ * o resultado real — tanto no giro base quanto em cada giro do bônus.
+ * O resultado já foi decidido pelo servidor (CSPRNG) no instante em que a
+ * resposta chega; este atraso só existe para dar a sensação de "rolar os
+ * rolos" em vez de o grid simplesmente trocar de figura instantaneamente.
+ */
+export const SPIN_FRAME_MS = 90;
+export const MIN_SPIN_DURATION_MS = 700;
+export const BONUS_GIRO_SPIN_MS = 450;
+
+/**
+ * Símbolos usados só para o efeito visual do giro (embaralhamento rápido
+ * de emojis antes do resultado aparecer). Não têm nenhum papel no
+ * resultado do jogo — por isso é seguro sortear com Math.random() aqui,
+ * ao contrário do nonce em api.ts, que usa a Web Crypto API porque
+ * participa do cálculo do resultado real.
+ */
+export const SPIN_PLACEHOLDER_SYMBOLS = Object.keys(SYMBOL_EMOJI).filter(
+    (name) => name !== SCATTER_SYMBOL_NAME && name !== MULTIPLIER_SYMBOL_NAME,
+);

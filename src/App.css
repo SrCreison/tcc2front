@@ -112,6 +112,23 @@
 
 /* --- Grid do slot --- */
 
+.board-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.bonus-badge {
+    background: linear-gradient(90deg, var(--accent-amber), var(--accent-purple));
+    color: #0f172a;
+    font-weight: bold;
+    font-size: 0.85rem;
+    padding: 6px 16px;
+    border-radius: 999px;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+}
+
 .slot-grid {
     display: grid;
     grid-template-columns: repeat(6, 75px);
@@ -122,6 +139,25 @@
     border-radius: 16px;
     border: 4px solid var(--accent-purple-deep);
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+/* Efeito de "rolos girando" — só cosmético, mostrado enquanto o
+   resultado real (já determinado pelo servidor) aguarda revelação. */
+.slot-grid--spinning .slot-cell {
+    animation: reel-blur 0.09s linear infinite;
+}
+
+@keyframes reel-blur {
+    from {
+        transform: translateY(-3px);
+        filter: blur(1.5px);
+        opacity: 0.75;
+    }
+    to {
+        transform: translateY(3px);
+        filter: blur(0);
+        opacity: 1;
+    }
 }
 
 .slot-cell {
@@ -253,4 +289,359 @@
         animation: none !important;
         transition: none !important;
     }
+}
+
+/* --- Navegação --- */
+
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.site-nav__link {
+    color: var(--text-muted);
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-muted);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+.site-nav__link:hover {
+    color: white;
+    border-color: var(--accent-purple);
+}
+
+/* --- Controles de aposta e perfil --- */
+
+.game-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+    justify-content: center;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-muted);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    max-width: 640px;
+}
+
+.game-controls__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.game-controls__field input,
+.game-controls__field select {
+    background-color: var(--bg-cell);
+    color: white;
+    border: 1px solid var(--border-muted);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    min-width: 160px;
+}
+
+.game-controls__hint {
+    flex-basis: 100%;
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    margin: 4px 0 0;
+    max-width: 560px;
+    text-align: center;
+}
+
+/* --- Painel de auditoria (hashes) --- */
+
+.audit-panel {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 640px;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-muted);
+    border-radius: 12px;
+    padding: 14px 18px;
+}
+
+.audit-panel summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--accent-purple);
+}
+
+.audit-panel__body {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.audit-panel__seeds {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px;
+    font-size: 0.8rem;
+}
+
+.audit-panel__field-label {
+    display: block;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.audit-panel code,
+.hash-row__value,
+.verify-form code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    word-break: break-all;
+    font-size: 0.72rem;
+    color: #d8b4fe;
+}
+
+.audit-panel h5 {
+    margin: 8px 0 4px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.hash-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.hash-row {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-cell);
+    border-radius: 6px;
+    padding: 6px 8px;
+}
+
+.hash-row__label {
+    font-size: 0.7rem;
+    color: var(--text-faint);
+}
+
+.bonus-hash-list details {
+    background-color: var(--bg-cell);
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+}
+
+.bonus-hash-list summary {
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.btn--verify {
+    display: inline-block;
+    background-color: var(--accent-purple-deep);
+    color: white;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 6px;
+}
+
+.btn--verify:hover {
+    filter: brightness(1.15);
+}
+
+/* --- Páginas explicativas / verificação --- */
+
+.page-container {
+    max-width: 760px;
+    text-align: left;
+    align-items: stretch;
+}
+
+.page-container .title {
+    text-align: center;
+}
+
+.page-intro {
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.page-hint {
+    font-size: 0.8rem;
+    color: var(--text-faint);
+    line-height: 1.5;
+}
+
+.explainer-section {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-muted);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    line-height: 1.65;
+}
+
+.explainer-section h2 {
+    color: var(--accent-purple);
+    font-size: 1.1rem;
+    margin-top: 0;
+}
+
+.explainer-section code {
+    background-color: var(--bg-cell);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: #d8b4fe;
+    font-size: 0.85em;
+}
+
+.explainer-section a {
+    color: var(--accent-amber);
+}
+
+.profile-comparison {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+}
+
+.profile-comparison__card {
+    background-color: var(--bg-cell);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.profile-comparison__card h3 {
+    margin-top: 0;
+    font-size: 0.95rem;
+    color: var(--accent-amber);
+}
+
+.weights-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    margin-bottom: 10px;
+}
+
+.weights-table th,
+.weights-table td {
+    text-align: left;
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--border-muted);
+}
+
+.profile-comparison__stats {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* --- Formulário de verificação --- */
+
+.verify-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-muted);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+}
+
+.verify-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.verify-form input,
+.verify-form select {
+    background-color: var(--bg-cell);
+    color: white;
+    border: 1px solid var(--border-muted);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    font-family: inherit;
+}
+
+.verify-form__row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.verify-form__row label {
+    flex: 1;
+    min-width: 160px;
+}
+
+.verify-form__checkbox {
+    flex-direction: row !important;
+    align-items: center;
+    gap: 8px !important;
+    justify-content: flex-start;
+}
+
+.verify-error {
+    color: var(--danger);
+    background-color: rgba(248, 113, 113, 0.1);
+    border: 1px solid var(--danger);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+}
+
+.verify-result {
+    background-color: var(--bg-panel);
+    border-left: 6px solid var(--success);
+    border-radius: 12px;
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.verify-result__badge {
+    color: var(--success);
+    font-weight: bold;
+    align-self: flex-start;
+}
+
+.verify-result ul {
+    align-self: flex-start;
+    margin: 0;
+    padding-left: 20px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
 }
