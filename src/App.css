@@ -17,10 +17,25 @@
     box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Evita que qualquer elemento um pouco largo demais force uma barra de
+   rolagem horizontal (e, por tabela, o "zoom out" pra caber tudo). */
+body {
+    overflow-x: hidden;
+}
+
 .game-container {
     background-color: var(--bg-deep);
     color: white;
     min-height: 100vh;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -45,12 +60,13 @@
 /* --- Painel lateral de pagamentos --- */
 
 .side-panel {
-    width: 180px;
+    width: clamp(130px, 26vw, 180px);
+    flex-shrink: 0;
     background-color: var(--bg-panel);
     padding: 15px;
     border-radius: 12px;
     border: 2px solid var(--border-muted);
-    min-height: 415px;
+    min-height: min(415px, 60vh);
 }
 
 .side-panel__title {
@@ -130,12 +146,15 @@
 }
 
 .slot-grid {
+    container-type: inline-size;
     display: grid;
-    grid-template-columns: repeat(6, 75px);
-    grid-template-rows: repeat(5, 75px);
-    gap: 10px;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 2.2%;
+    width: min(94vw, 520px);
+    aspect-ratio: 6 / 5;
     background-color: var(--bg-panel);
-    padding: 20px;
+    padding: 3.5%;
     border-radius: 16px;
     border: 4px solid var(--accent-purple-deep);
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
@@ -161,15 +180,19 @@
 }
 
 .slot-cell {
-    width: 75px;
-    height: 75px;
+    width: 100%;
+    height: 100%;
     background-color: var(--bg-cell);
     border: 1px solid var(--border-muted);
-    border-radius: 10px;
+    border-radius: 18%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
+    /* cqw = 1% da largura do próprio .slot-grid (container query units),
+       não da viewport — por isso o emoji escala certo com o tabuleiro em
+       qualquer tamanho de janela, sem precisar de um "salto" em algum
+       breakpoint fixo. */
+    font-size: 9.5cqw;
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background-color 0.3s ease-in-out;
 }
 
@@ -263,25 +286,10 @@
 
 /* --- Responsividade --- */
 
-@media (max-width: 520px) {
-    .slot-grid {
-        grid-template-columns: repeat(6, 48px);
-        grid-template-rows: repeat(5, 48px);
-        gap: 6px;
-        padding: 12px;
-    }
-
-    .slot-cell {
-        width: 48px;
-        height: 48px;
-        font-size: 1.6rem;
-    }
-
-    .side-panel {
-        width: 140px;
-        min-height: unset;
-    }
-}
+/* O tabuleiro (.slot-grid/.slot-cell) já escala fluidamente sozinho via
+   container query units — não precisa de breakpoint fixo aqui. Isso é o
+   que elimina o "salto" de tamanho e a necessidade de dar zoom out pra
+   caber tudo na tela. */
 
 @media (prefers-reduced-motion: reduce) {
     .slot-cell,
@@ -470,6 +478,8 @@
 
 .page-container {
     max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
     text-align: left;
     align-items: stretch;
 }
