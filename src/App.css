@@ -52,7 +52,10 @@ body {
 .game-board {
     display: flex;
     gap: 20px;
-    align-items: flex-start;
+    /* stretch faz o painel lateral acompanhar a altura real do tabuleiro
+       (que agora é fluida), em vez de ter uma altura fixa própria que
+       podia ficar maior ou menor que o grid ao lado. */
+    align-items: stretch;
     flex-wrap: wrap;
     justify-content: center;
 }
@@ -151,7 +154,16 @@ body {
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(5, 1fr);
     gap: 2.2%;
-    width: min(94vw, 520px);
+    /* As três medidas em min() competem entre si: a viewport nunca deixa
+       o tabuleiro passar de 94% da largura da tela, nunca passar de
+       520px (tamanho "de desktop" original), e nunca passar da altura
+       disponível depois de reservar ~210px pro título/navegação/
+       controles/botões (a proporção 6:5 do grid vira *1.2 pra converter
+       a altura sobrando em largura equivalente). É isso que garante que
+       o tabuleiro sempre cabe no monitor, em qualquer resolução, sem
+       precisar de zoom nem cortar nada.
+    */
+    width: min(94vw, 520px, calc((100dvh - 210px) * 1.2));
     aspect-ratio: 6 / 5;
     background-color: var(--bg-panel);
     padding: 3.5%;
@@ -220,7 +232,6 @@ body {
 
 .ui-panel {
     text-align: center;
-    margin-top: 30px;
 }
 
 .status-line {
@@ -267,7 +278,6 @@ body {
 /* --- Resumo financeiro --- */
 
 .result-summary {
-    margin-top: 30px;
     padding: 20px;
     background-color: var(--bg-panel);
     border-radius: 12px;
@@ -299,7 +309,40 @@ body {
     }
 }
 
-/* --- Navegação --- */
+.game-container--fit {
+    padding: 0;
+}
+
+/* O "canto do jogo": título, navegação, controles, tabuleiro e botões
+   ficam aqui dentro, dimensionados pra caber numa tela de 100dvh sem
+   precisar rolar — como o "cabinet" de uma slot de verdade. O resumo e
+   a auditoria (.game-extras) ficam FORA de propósito: não são o jogo em
+   si, então não competem por esse espaço fixo. */
+.game-viewport {
+    min-height: 100dvh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(6px, 1.6vh, 16px);
+    padding: clamp(10px, 2.5vh, 24px) 16px;
+}
+
+.title--compact {
+    margin: 0;
+    font-size: clamp(1.25rem, 3.2vh, 1.8rem);
+}
+
+.game-extras {
+    width: 100%;
+    max-width: 640px;
+    margin: 4px auto 24px;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
 
 .site-nav {
     display: flex;
@@ -325,6 +368,45 @@ body {
     border-color: var(--accent-purple);
 }
 
+.site-nav--compact {
+    position: relative;
+}
+
+.site-nav__more {
+    position: relative;
+}
+
+.site-nav__more summary {
+    cursor: pointer;
+    color: var(--text-muted);
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-muted);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    list-style: none;
+}
+
+.site-nav__more summary::-webkit-details-marker {
+    display: none;
+}
+
+.site-nav__more-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-muted);
+    border-radius: 10px;
+    padding: 8px;
+    z-index: 20;
+    min-width: 210px;
+}
+
 /* --- Controles de aposta e perfil --- */
 
 .game-controls {
@@ -337,7 +419,6 @@ body {
     border: 1px solid var(--border-muted);
     border-radius: 12px;
     padding: 14px 18px;
-    margin-bottom: 20px;
     max-width: 640px;
 }
 
@@ -372,7 +453,6 @@ body {
 /* --- Painel de auditoria (hashes) --- */
 
 .audit-panel {
-    margin-top: 20px;
     width: 100%;
     max-width: 640px;
     background-color: var(--bg-panel);
@@ -654,4 +734,80 @@ body {
     font-size: 0.85rem;
     color: var(--text-muted);
     line-height: 1.6;
+}
+
+/* --- Aviso legal/educacional --- */
+
+.disclaimer-badge {
+    position: fixed;
+    right: 14px;
+    bottom: 14px;
+    z-index: 50;
+    background-color: var(--bg-panel);
+    color: var(--text-muted);
+    border: 1px solid var(--border-muted);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.disclaimer-badge:hover {
+    color: white;
+    border-color: var(--accent-purple);
+}
+
+.disclaimer-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(2, 6, 23, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+}
+
+.disclaimer-panel {
+    position: relative;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-muted);
+    border-radius: 14px;
+    padding: 24px 26px;
+    max-width: 520px;
+    max-height: 80vh;
+    overflow-y: auto;
+    line-height: 1.6;
+}
+
+.disclaimer-panel h2 {
+    margin-top: 0;
+    color: var(--accent-purple);
+    font-size: 1.1rem;
+}
+
+.disclaimer-panel ul {
+    padding-left: 20px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+.disclaimer-panel__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.disclaimer-panel__close:hover {
+    color: white;
 }

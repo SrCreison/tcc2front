@@ -25,41 +25,53 @@ export function GamePage() {
     const bonusCost = betAmount * BONUS_BUY_COST_MULTIPLIER;
 
     return (
-        <div className="game-container">
-            <h1 className="title">🧪 Alquimia Slot</h1>
-            <SiteNav />
+        <div className="game-container game-container--fit">
+            <div className="game-viewport">
+                <h1 className="title title--compact">🧪 Alquimia Slot</h1>
+                <SiteNav compact />
 
-            <GameControls
-                betAmount={betAmount}
-                onBetAmountChange={setBetAmount}
-                profile={profile}
-                onProfileChange={setProfile}
-                disabled={loading}
-            />
+                <GameControls
+                    betAmount={betAmount}
+                    onBetAmountChange={setBetAmount}
+                    profile={profile}
+                    onProfileChange={setProfile}
+                    disabled={loading}
+                />
 
-            <div className="game-board">
-                <SidePanel wins={tumbleWins} />
-                <div className="board-column">
-                    {bonusSpinLabel && <div className="bonus-badge">{bonusSpinLabel}</div>}
-                    <SlotGrid grid={grid} spinning={spinning} />
+                <div className="game-board">
+                    <SidePanel wins={tumbleWins} />
+                    <div className="board-column">
+                        {bonusSpinLabel && <div className="bonus-badge">{bonusSpinLabel}</div>}
+                        <SlotGrid grid={grid} spinning={spinning} />
+                    </div>
+                </div>
+
+                <div className="ui-panel">
+                    <p className="status-line">{status}</p>
+
+                    <div className="button-row">
+                        <button className="btn btn--normal" onClick={() => girar(false)} disabled={loading}>
+                            {loading ? '...' : `Jogar R$ ${betAmount.toFixed(2)}`}
+                        </button>
+                        <button className="btn btn--bonus" onClick={() => girar(true)} disabled={loading}>
+                            Bônus R$ {bonusCost.toFixed(2)}
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div className="ui-panel">
-                <p className="status-line">{status}</p>
-
-                <div className="button-row">
-                    <button className="btn btn--normal" onClick={() => girar(false)} disabled={loading}>
-                        {loading ? '...' : `Jogar R$ ${betAmount.toFixed(2)}`}
-                    </button>
-                    <button className="btn btn--bonus" onClick={() => girar(true)} disabled={loading}>
-                        Bônus R$ {bonusCost.toFixed(2)}
-                    </button>
+            {/* Fora do "game-viewport" de propósito: isto é material de apoio
+                (resumo financeiro e auditoria), não o jogo em si — não faz
+                sentido gastar espaço de tela fixa com isso, como uma slot
+                real reserva a tela principal pros rolos e mostra popups/
+                extratos à parte. Fica alcançável com uma rolagem, só quando
+                existe (depois de uma jogada). */}
+            {info && (
+                <div className="game-extras">
+                    <ResultSummary info={info} />
+                    <AuditPanel info={info} />
                 </div>
-            </div>
-
-            {info && <ResultSummary info={info} />}
-            {info && <AuditPanel info={info} />}
+            )}
         </div>
     );
 }
