@@ -51,6 +51,7 @@ export interface VerifyRoundInput {
     isBonusBuy?: boolean;
     valorAposta?: number;
     perfil?: GameProfile;
+    algoVersion?: 1 | 2;
 }
 
 /** Recalcula uma rodada já jogada a partir dos dados públicos revelados — o núcleo da auditoria "provably fair". */

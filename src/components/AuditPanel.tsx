@@ -18,7 +18,7 @@ function HashRow({ cascata, hash }: { cascata: number; hash: string }) {
 
 export function AuditPanel({ info }: AuditPanelProps) {
     const [bonusExpandido, setBonusExpandido] = useState<number | null>(null);
-    const { serverSeed, clientSeed, nonceInicial, valorAposta, perfil, isBonusBuy } = info.auditoria;
+    const { serverSeed, clientSeed, nonceInicial, valorAposta, perfil, isBonusBuy, algoVersion = 1 } = info.auditoria;
     const historicoBase = info.roteiroDoJogo.jogoBase.historicoRodada;
     const jogoBonus = info.roteiroDoJogo.jogoBonus;
 
@@ -29,6 +29,7 @@ export function AuditPanel({ info }: AuditPanelProps) {
         valorAposta: String(valorAposta),
         perfil,
         isBonusBuy: String(isBonusBuy),
+        algoVersion: String(algoVersion),
     });
 
     return (

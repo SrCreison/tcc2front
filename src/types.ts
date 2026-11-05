@@ -70,6 +70,8 @@ export interface SpinResponse {
         valorAposta: number;
         perfil: GameProfile;
         isBonusBuy: boolean;
+        /** 1 = algoritmo legado, 2 = HMAC estendido. Ausente em backends antigos (tratar como 1). */
+        algoVersion?: 1 | 2;
     };
     resumoFinanceiro: {
         valorApostado: number;
@@ -89,6 +91,7 @@ export interface SpinResponse {
 
 export interface VerifyResponse {
     verificado: boolean;
+    algoVersion?: 1 | 2;
     perfilUtilizado: GameProfile;
     valorApostaUtilizado: number;
     jogoBase: {

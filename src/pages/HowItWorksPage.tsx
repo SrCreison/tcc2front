@@ -73,7 +73,7 @@ export function HowItWorksPage() {
                 <p>
                     Cada símbolo tem um <strong>peso</strong>. A chance dele cair numa casa é{' '}
                     <code>peso ÷ soma de todos os pesos</code>. Pense numa roleta dividida em fatias proporcionais ao
-                    peso de cada símbolo — um byte do hash (um número de 0 a 255) sorteia um ponto dentro dela.
+                    peso de cada símbolo — 32 bits do hash (um número de 0 a 4,29 bilhões, v2) sorteiam um ponto dentro dela, então a chance real é igual ao peso.
                 </p>
                 <p>
                     <strong>Isso é importante:</strong> a criptografia (HMAC-SHA256) garante que ninguém, nem o próprio

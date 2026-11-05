@@ -16,6 +16,8 @@ export function ProvablyFairPage() {
     const [valorAposta, setValorAposta] = useState(searchParams.get('valorAposta') ?? '2');
     const [perfil, setPerfil] = useState<GameProfile>((searchParams.get('perfil') as GameProfile) ?? 'normal');
     const [isBonusBuy, setIsBonusBuy] = useState(searchParams.get('isBonusBuy') === 'true');
+    // Link sem algoVersion = rodada antiga (v1).
+    const [algoVersion, setAlgoVersion] = useState<1 | 2>(searchParams.get('algoVersion') === '2' ? 2 : 1);
 
     const [loading, setLoading] = useState(false);
     const [erro, setErro] = useState<string | null>(null);
@@ -35,6 +37,7 @@ export function ProvablyFairPage() {
                 valorAposta: Number(valorAposta),
                 perfil,
                 isBonusBuy,
+                algoVersion,
             });
             setResultado(dados);
         } catch (err) {
@@ -97,6 +100,13 @@ export function ProvablyFairPage() {
                                     {GAME_PROFILE_LABELS[id]}
                                 </option>
                             ))}
+                        </select>
+                    </label>
+                    <label>
+                        <span>Algoritmo</span>
+                        <select value={algoVersion} onChange={(e) => setAlgoVersion(Number(e.target.value) === 2 ? 2 : 1)}>
+                            <option value={2}>v2 (atual)</option>
+                            <option value={1}>v1 (legado)</option>
                         </select>
                     </label>
                     <label className="verify-form__checkbox">
